@@ -146,3 +146,7 @@ Two messages are about the language settings, also for your administrator:
 
 - Translate a whole page at once rather than element by element: it's one request to Supertext and the context makes the translation more consistent.
 - To retranslate an element, delete its translation and translate again.
+
+## Support
+
+Questions, problems or ideas: use the [Supertext support form](https://integrations.supertext.com/en/support?platform=typo3). Mention the version of TYPO3 and of the plugin, what you did and what you expected; an error message helps a lot. You get an answer by email, in your language.
