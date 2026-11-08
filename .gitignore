@@ -5,3 +5,5 @@ composer.lock
 !demo/composer.lock
 Tests/Docs/node_modules/
 /public/
+/Tests/Docs/movie/out/
+/Tests/Docs/movie/voice-cache/

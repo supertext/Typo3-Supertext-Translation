@@ -19,6 +19,10 @@
 				<source>Custom API base URL: Overrides the environment when set (e.g. https://api.supertext.com/v1/).</source>
 				<target>URL de base personnalisée de l'API : remplace l'environnement si elle est définie (p. ex. https://api.supertext.com/v1/).</target>
 			</trans-unit>
+			<trans-unit id="settings.reviewUrl" approved="yes">
+				<source>Review service URL: Address of Supertext's review service, used for site languages with Translation review on. Keep the default unless Supertext gives you another address; empty turns Translation review off for every language. The environment variable SUPERTEXT_REVIEW_URL takes precedence.</source>
+				<target>URL du service de révision : adresse du service de révision de Supertext, utilisée pour les langues dont la révision des traductions est activée. Conservez la valeur par défaut, sauf si Supertext vous indique une autre adresse ; vide, elle désactive la révision des traductions pour toutes les langues. La variable d'environnement SUPERTEXT_REVIEW_URL est prioritaire.</target>
+			</trans-unit>
 			<trans-unit id="settings.pollTimeout" approved="yes">
 				<source>Polling timeout (seconds): Maximum time to wait for a translation.</source>
 				<target>Délai d'attente maximal (secondes) : durée maximale d'attente d'une traduction.</target>
@@ -116,8 +120,8 @@
 				<target>Envoyer les informations de version à Supertext : envoie à Supertext l'URL du site ainsi que les versions de cette extension, de TYPO3 et de l'environnement d'exécution lorsque vous enregistrez ces paramètres et après une mise à jour. Le support Supertext voit ainsi quelle version vous utilisez. Aucun contenu, aucune clé API et aucune donnée personnelle ne sont transmis. La variable d'environnement SUPERTEXT_VERSION_REPORTS=0 le désactive et est prioritaire.</target>
 			</trans-unit>
 			<trans-unit id="error.unsupportedLanguage" approved="yes">
-				<source>The language %s has no Supertext language yet. Ask your administrator to map it (field Supertext language of the site language in the site configuration, or supertext_code, e.g. de-CH).</source>
-				<target>La langue %s n’est encore associée à aucune langue Supertext. Demandez à votre administrateur de l’associer (champ Langue Supertext de la langue du site dans la configuration du site, ou supertext_code, p. ex. de-CH).</target>
+				<source>The language %s has no Supertext language yet. Ask your administrator to choose one in the site configuration (Languages → the language → Supertext → Supertext language).</source>
+				<target>La langue %s n’a pas encore de langue Supertext. Demandez à votre administrateur d’en choisir une dans la configuration du site (Langues → la langue → Supertext → Langue Supertext).</target>
 			</trans-unit>
 			<trans-unit id="error.unsupportedFeature" approved="yes">
 				<source>Supertext offers no formal or informal tone for this language. Set the Supertext tone of this site language to Default (supertext_politeness).</source>
@@ -188,8 +192,8 @@
 				<target>Langues</target>
 			</trans-unit>
 			<trans-unit id="status.languagesHelp" approved="yes">
-				<source>Every site language needs a Supertext language. Choose it in the site configuration (Languages, field Supertext language) or set supertext_code in config/sites/&lt;site&gt;/config.yaml.</source>
-				<target>Chaque langue du site a besoin d'une langue Supertext. Choisissez-la dans la configuration du site (Langues, champ Langue Supertext) ou définissez supertext_code dans config/sites/&lt;site&gt;/config.yaml.</target>
+				<source>Every site language is sent with the Supertext language chosen in the site configuration (Languages → the language → Supertext → Supertext language), else with the default for its locale (e.g. de → de-DE). Choose one for the languages marked below, or set supertext_code in config/sites/&lt;site&gt;/config.yaml.</source>
+				<target>Chaque langue du site est envoyée avec la langue Supertext choisie dans la configuration du site (Langues → la langue → Supertext → Langue Supertext), sinon avec la valeur par défaut de sa locale (p. ex. de → de-DE). Choisissez-en une pour les langues signalées ci-dessous, ou définissez supertext_code dans config/sites/&lt;site&gt;/config.yaml.</target>
 			</trans-unit>
 			<trans-unit id="status.noSites" approved="yes">
 				<source>No sites are configured yet.</source>
@@ -223,6 +227,10 @@
 				<source>Not mapped: choose its Supertext language</source>
 				<target>Non associée : choisissez sa langue Supertext</target>
 			</trans-unit>
+			<trans-unit id="status.default" approved="yes">
+				<source>default</source>
+				<target>par défaut</target>
+			</trans-unit>
 			<trans-unit id="status.tone.default" approved="yes">
 				<source>Default</source>
 				<target>Par défaut</target>
@@ -248,12 +256,20 @@
 				<target>Langue Supertext</target>
 			</trans-unit>
 			<trans-unit id="siteLanguage.code.description" approved="yes">
-				<source>The language Supertext translates into (for the default language: from). Automatic uses the locale when it is a Supertext language (e.g. de-CH, es); otherwise translations into this language stop with a message until you choose one.</source>
-				<target>La langue dans laquelle Supertext traduit (pour la langue par défaut : à partir de laquelle). Automatique utilise la locale si c'est une langue Supertext (p. ex. de-CH, es) ; sinon, les traductions vers cette langue s'arrêtent avec un message jusqu'à ce que vous en choisissiez une.</target>
+				<source>The language Supertext translates into (for the default language: from). Default uses the code shown for the locale: its exact Supertext code, or the usual one (de → de-DE, nl_NL → nl, zh_TW → zh-Hant). Locales without one show “— choose —”: translations into such a language stop with a message until you choose its Supertext language.</source>
+				<target>La langue dans laquelle Supertext traduit (pour la langue par défaut : à partir de laquelle). Par défaut utilise le code affiché pour la locale : son code Supertext exact, ou le code usuel (de → de-DE, nl_NL → nl, zh_TW → zh-Hant). Les locales qui n’en ont pas affichent « — choisir — » : les traductions vers une telle langue s’arrêtent avec un message jusqu’à ce que vous choisissiez sa langue Supertext.</target>
 			</trans-unit>
-			<trans-unit id="siteLanguage.code.automatic" approved="yes">
-				<source>Automatic (the locale, if it is a Supertext language)</source>
-				<target>Automatique (la locale, si c'est une langue Supertext)</target>
+			<trans-unit id="siteLanguage.code.default" approved="yes">
+				<source>Default (%s)</source>
+				<target>Par défaut (%s)</target>
+			</trans-unit>
+			<trans-unit id="siteLanguage.code.choose" approved="yes">
+				<source>— choose —</source>
+				<target>— choisir —</target>
+			</trans-unit>
+			<trans-unit id="siteLanguage.code.custom" approved="yes">
+				<source>%s (not in the Supertext list, sent as it is)</source>
+				<target>%s (absent de la liste Supertext, envoyé tel quel)</target>
 			</trans-unit>
 			<trans-unit id="siteLanguage.politeness" approved="yes">
 				<source>Supertext tone</source>
@@ -262,6 +278,158 @@
 			<trans-unit id="siteLanguage.politeness.description" approved="yes">
 				<source>Formal (Sie, vous, Lei) or informal (du, tu) address, for languages where Supertext offers it.</source>
 				<target>Vouvoiement (vous) ou tutoiement (tu), pour les langues où Supertext le propose.</target>
+			</trans-unit>
+			<trans-unit id="siteLanguage.review" approved="yes">
+				<source>Translation review</source>
+				<target>Révision des traductions</target>
+			</trans-unit>
+			<trans-unit id="siteLanguage.review.description" approved="yes">
+				<source>Translations into this site language go through Supertext's review service, so reviewers can check and correct them on the website with the Supertext Localization Review extension. Their corrections are used the next time content is translated into this language.</source>
+				<target>Les traductions vers cette langue du site passent par le service de révision de Supertext, afin que les réviseurs puissent les vérifier et les corriger directement sur le site avec l'extension Supertext Localization Review. Leurs corrections sont reprises lors de la prochaine traduction de contenus vers cette langue.</target>
+			</trans-unit>
+			<trans-unit id="file.saved" approved="yes">
+				<source>File saved: %s</source>
+				<target>Fichier enregistré : %s</target>
+			</trans-unit>
+			<trans-unit id="file.nothing" approved="yes">
+				<source>Nothing to translate.</source>
+				<target>Rien à traduire.</target>
+			</trans-unit>
+			<trans-unit id="file.job" approved="yes">
+				<source>Page %d “%s” → %s</source>
+				<target>Page %d « %s » → %s</target>
+			</trans-unit>
+			<trans-unit id="file.summary.ok" approved="yes">
+				<source>Imported: %d</source>
+				<target>Importés : %d</target>
+			</trans-unit>
+			<trans-unit id="file.summary.changed" approved="yes">
+				<source>Skipped, source changed since the export: %d</source>
+				<target>Ignorés, source modifiée depuis l'export : %d</target>
+			</trans-unit>
+			<trans-unit id="file.summary.untranslated" approved="yes">
+				<source>Not translated in the file: %d</source>
+				<target>Non traduits dans le fichier : %d</target>
+			</trans-unit>
+			<trans-unit id="file.summary.invalid" approved="yes">
+				<source>Formatting changed, not imported: %d</source>
+				<target>Mise en forme modifiée, non importés : %d</target>
+			</trans-unit>
+			<trans-unit id="file.summary.missing" approved="yes">
+				<source>Not in the file: %d</source>
+				<target>Absents du fichier : %d</target>
+			</trans-unit>
+			<trans-unit id="file.error.invalidFile" approved="yes">
+				<source>This file isn't a valid XLIFF or HTML translation file.</source>
+				<target>Ce fichier n'est pas un fichier de traduction XLIFF ou HTML valide.</target>
+			</trans-unit>
+			<trans-unit id="file.error.missingMetadata" approved="yes">
+				<source>This file wasn't exported by the Supertext extension, or its header was removed.</source>
+				<target>Ce fichier n'a pas été exporté par l'extension Supertext, ou son en-tête a été supprimé.</target>
+			</trans-unit>
+			<trans-unit id="file.error.tooLarge" approved="yes">
+				<source>The file is too large (at most 10 MB).</source>
+				<target>Le fichier est trop volumineux (10 Mo au maximum).</target>
+			</trans-unit>
+			<trans-unit id="file.error.otherSystem" approved="yes">
+				<source>This file belongs to another system (%s).</source>
+				<target>Ce fichier appartient à un autre système (%s).</target>
+			</trans-unit>
+			<trans-unit id="file.error.notFound" approved="yes">
+				<source>The page this file was exported from no longer exists.</source>
+				<target>La page à partir de laquelle ce fichier a été exporté n'existe plus.</target>
+			</trans-unit>
+			<trans-unit id="file.error.noLanguage" approved="yes">
+				<source>The site has no language %s.</source>
+				<target>Le site n'a pas de langue %s.</target>
+			</trans-unit>
+			<trans-unit id="module.title" approved="yes">
+				<source>Supertext</source>
+				<target>Supertext</target>
+			</trans-unit>
+			<trans-unit id="module.description" approved="yes">
+				<source>Export pages for translation as XLIFF or HTML files and import the translated files.</source>
+				<target>Exporter des pages pour traduction en fichiers XLIFF ou HTML et importer les fichiers traduits.</target>
+			</trans-unit>
+			<trans-unit id="module.shortDescription" approved="yes">
+				<source>Translation files (XLIFF, HTML)</source>
+				<target>Fichiers de traduction (XLIFF, HTML)</target>
+			</trans-unit>
+			<trans-unit id="files.export" approved="yes">
+				<source>Export for translation</source>
+				<target>Exporter pour traduction</target>
+			</trans-unit>
+			<trans-unit id="files.exportHint" approved="yes">
+				<source>Download the texts of the page “%s” and its content elements as a file for a translation tool, a translator or Supertext's web app. Import the translated file again under Import translation.</source>
+				<target>Téléchargez les textes de la page « %s » et de ses éléments de contenu dans un fichier pour un outil de traduction, un traducteur ou l’application web de Supertext. Importez ensuite le fichier traduit sous Importer une traduction.</target>
+			</trans-unit>
+			<trans-unit id="files.selectPage" approved="yes">
+				<source>Select a page in the page tree to export it for translation.</source>
+				<target>Sélectionnez une page dans l’arborescence des pages pour l’exporter pour traduction.</target>
+			</trans-unit>
+			<trans-unit id="files.noLanguages" approved="yes">
+				<source>This page's site has no other languages you can edit.</source>
+				<target>Le site de cette page n’a pas d’autre langue que vous pouvez modifier.</target>
+			</trans-unit>
+			<trans-unit id="files.languages" approved="yes">
+				<source>Languages</source>
+				<target>Langues</target>
+			</trans-unit>
+			<trans-unit id="files.format" approved="yes">
+				<source>File format</source>
+				<target>Format de fichier</target>
+			</trans-unit>
+			<trans-unit id="files.formatXliff" approved="yes">
+				<source>XLIFF 1.2 (for translation tools)</source>
+				<target>XLIFF 1.2 (pour les outils de traduction)</target>
+			</trans-unit>
+			<trans-unit id="files.formatHtml" approved="yes">
+				<source>HTML (one language per file)</source>
+				<target>HTML (une langue par fichier)</target>
+			</trans-unit>
+			<trans-unit id="files.download" approved="yes">
+				<source>Download file</source>
+				<target>Télécharger le fichier</target>
+			</trans-unit>
+			<trans-unit id="files.import" approved="yes">
+				<source>Import translation</source>
+				<target>Importer une traduction</target>
+			</trans-unit>
+			<trans-unit id="files.importHint" approved="yes">
+				<source>Upload a file exported with Export for translation (any page, at most 10 MB). The translations are saved in the page's translation, like translations made with Supertext; new translations start hidden.</source>
+				<target>Chargez un fichier exporté avec Exporter pour traduction (n’importe quelle page, 10 Mo au maximum). Les traductions sont enregistrées dans la traduction de la page, comme les traductions faites avec Supertext ; les nouvelles traductions sont d’abord masquées.</target>
+			</trans-unit>
+			<trans-unit id="files.file" approved="yes">
+				<source>Translated file (XLIFF or HTML)</source>
+				<target>Fichier traduit (XLIFF ou HTML)</target>
+			</trans-unit>
+			<trans-unit id="files.includeChanged" approved="yes">
+				<source>Also import texts whose source changed since the export</source>
+				<target>Importer aussi les textes dont la source a changé depuis l’export</target>
+			</trans-unit>
+			<trans-unit id="files.importButton" approved="yes">
+				<source>Import</source>
+				<target>Importer</target>
+			</trans-unit>
+			<trans-unit id="files.result" approved="yes">
+				<source>Import result</source>
+				<target>Résultat de l’import</target>
+			</trans-unit>
+			<trans-unit id="files.noFile" approved="yes">
+				<source>Choose a file to import.</source>
+				<target>Choisissez un fichier à importer.</target>
+			</trans-unit>
+			<trans-unit id="files.chooseLanguage" approved="yes">
+				<source>Choose at least one language.</source>
+				<target>Choisissez au moins une langue.</target>
+			</trans-unit>
+			<trans-unit id="files.htmlOneLanguage" approved="yes">
+				<source>An HTML file holds exactly one language. Choose one language, or XLIFF.</source>
+				<target>Un fichier HTML contient exactement une langue. Choisissez une langue, ou XLIFF.</target>
+			</trans-unit>
+			<trans-unit id="files.uploadFailed" approved="yes">
+				<source>The file could not be uploaded. Please try again.</source>
+				<target>Le fichier n’a pas pu être chargé. Veuillez réessayer.</target>
 			</trans-unit>
 		</body>
 	</file>

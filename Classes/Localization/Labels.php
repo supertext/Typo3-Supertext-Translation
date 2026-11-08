@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Supertext\Typo3Translation\Localization;
 
+use Supertext\Typo3Translation\Files\ImportedJob;
+use Supertext\Typo3Translation\Files\TranslationFileGlueError;
+use Supertext\Typo3Translation\Sdk\Files\TranslationFileError;
 use Supertext\Typo3Translation\Sdk\V1\SupertextException;
 use TYPO3\CMS\Core\Authentication\AbstractUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -72,5 +75,57 @@ final class Labels
             return $message;
         }
         return $detail !== '' ? $message . ' (' . $detail . ')' : $message;
+    }
+
+    /** The message of a translation file error (the SDK's TranslationFileError or the extension's TranslationFileGlueError). */
+    public function forFileError(\Throwable $e): string
+    {
+        if ($e instanceof TranslationFileError) {
+            return match ($e->errorCode) {
+                TranslationFileError::INVALID_FILE => $this->get('file.error.invalidFile'),
+                TranslationFileError::MISSING_METADATA => $this->get('file.error.missingMetadata'),
+                TranslationFileError::TOO_LARGE => $this->get('file.error.tooLarge'),
+                TranslationFileError::INVALID_JOB => $this->get('file.nothing'),
+                default => $e->getMessage(),
+            };
+        }
+        if ($e instanceof TranslationFileGlueError) {
+            return match ($e->errorCode) {
+                TranslationFileGlueError::NOTHING_TO_TRANSLATE => $this->get('file.nothing'),
+                TranslationFileGlueError::TOO_LARGE => $this->get('file.error.tooLarge'),
+                TranslationFileGlueError::OTHER_SYSTEM => $this->get('file.error.otherSystem', $e->argument),
+                TranslationFileGlueError::NOT_FOUND => $this->get('file.error.notFound'),
+                TranslationFileGlueError::NO_LANGUAGE => $this->get('file.error.noLanguage', $e->argument),
+                default => $e->getMessage(),
+            };
+        }
+        return $e->getMessage();
+    }
+
+    /**
+     * The summary of one imported job: a heading (page, language) and the counts or its error.
+     *
+     * @return list<string>
+     */
+    public function importSummary(ImportedJob $job): array
+    {
+        $heading = $job->page !== null
+            ? $this->get('file.job', $job->page, $job->title, $job->languageTitle !== '' ? $job->languageTitle : $job->targetLanguage)
+            : $job->reference . ' (' . $job->targetLanguage . ')';
+        if ($job->error !== null) {
+            return [$heading, $this->forFileError($job->error)];
+        }
+        $lines = [$heading, $this->get('file.summary.ok', $job->imported)];
+        foreach ([
+            'file.summary.changed' => $job->sourceChanged,
+            'file.summary.untranslated' => $job->untranslated,
+            'file.summary.invalid' => $job->invalid,
+            'file.summary.missing' => $job->missing,
+        ] as $key => $count) {
+            if ($count > 0) {
+                $lines[] = $this->get($key, $count);
+            }
+        }
+        return array_merge($lines, $job->messages);
     }
 }

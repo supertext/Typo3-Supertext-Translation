@@ -22,7 +22,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * The "Status" block at the top of the extension configuration (ext_conf_template.txt,
  * type=user): the latest API key check, the version reports setting with the ping URL,
- * and how every site language maps to a Supertext language.
+ * and how every site language maps to a Supertext language (its choice, an exact match or the
+ * SDK's default; only languages with neither are marked as not mapped).
  *
  * Opening the configuration after a save runs the API key check and the version report
  * (TYPO3 has no "configuration saved" event; see Reporting), so the result shows here.
@@ -155,7 +156,14 @@ final class StatusField
                 if ($code === null) {
                     $codeCell = '<span class="text-danger">' . $this->e($labels->get('status.notMapped')) . '</span>';
                 } else {
-                    $codeCell = '<code>' . $this->e($code) . '</code>' . ($isDefault ? ' <small>(' . $this->e($labels->get('status.source')) . ')</small>' : '');
+                    $notes = [];
+                    if ($isDefault) {
+                        $notes[] = $labels->get('status.source');
+                    }
+                    if (LanguageResolver::usesDefault($locale, $override)) {
+                        $notes[] = $labels->get('status.default');
+                    }
+                    $codeCell = '<code>' . $this->e($code) . '</code>' . ($notes !== [] ? ' <small>(' . $this->e(implode(', ', $notes)) . ')</small>' : '');
                 }
                 $tone = '';
                 if (!$isDefault) {
