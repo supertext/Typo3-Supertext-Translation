@@ -26,6 +26,9 @@ services:
   Supertext\Typo3Translation\Configuration\ExtensionSettings:
     public: true
 
+  Supertext\Typo3Translation\Site\SiteList:
+    public: true
+
   Supertext\Typo3Translation\Middleware\PingMiddleware:
     public: true
 

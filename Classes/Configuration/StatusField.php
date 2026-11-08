@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace Supertext\Typo3Translation\Configuration;
 
+use Supertext\Typo3Translation\Api\SupertextClientFactory;
 use Supertext\Typo3Translation\Localization\Labels;
 use Supertext\Typo3Translation\PluginHealth\KeyCheck;
 use Supertext\Typo3Translation\Reporting\Typo3Reporting;
 use Supertext\Typo3Translation\Sdk\V1\Languages;
 use Supertext\Typo3Translation\Sdk\V1\Politeness;
 use Supertext\Typo3Translation\Service\LanguageResolver;
+use Supertext\Typo3Translation\Site\SiteList;
 use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
-use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -22,8 +27,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * Opening the configuration after a save runs the API key check and the version report
  * (TYPO3 has no "configuration saved" event; see Reporting), so the result shows here.
- * Called by TYPO3's install tool without dependency injection, so it builds what it needs
- * itself and never lets an error break the configuration form.
+ * Rendered by the install tool, which may run in failsafe mode without this extension's
+ * services (see services()), so it never relies on injection and never lets an error break
+ * the configuration form.
  */
 final class StatusField
 {
@@ -36,9 +42,7 @@ final class StatusField
     {
         $labels = Labels::forUser($GLOBALS['BE_USER'] ?? null);
         try {
-            $reporting = GeneralUtility::makeInstance(Typo3Reporting::class);
-            $settings = GeneralUtility::makeInstance(ExtensionSettings::class);
-            $sites = GeneralUtility::makeInstance(SiteFinder::class);
+            [$reporting, $settings, $sites] = self::services();
         } catch (\Throwable) {
             return '<p>' . $this->e($labels->get('status.unavailable')) . '</p>';
         }
@@ -60,6 +64,32 @@ final class StatusField
         $html .= $this->reports($labels, $reporting, $settings);
         $html .= $this->languages($labels, $sites);
         return $html . '</div>';
+    }
+
+    /**
+     * The services the block needs. In the backend they come from the container. The extension
+     * configuration form, though, is rendered by the install tool in its failsafe mode
+     * (`?__typo3_install`), whose container has only core services, not this extension's
+     * (nor TYPO3's site finder): then they are built here from core services it does have.
+     *
+     * @return array{Typo3Reporting, ExtensionSettings, SiteList}
+     */
+    public static function services(): array
+    {
+        $container = GeneralUtility::getContainer();
+        if ($container->has(Typo3Reporting::class)) {
+            return [$container->get(Typo3Reporting::class), $container->get(ExtensionSettings::class), $container->get(SiteList::class)];
+        }
+        $settings = new ExtensionSettings(new ExtensionConfiguration());
+        $sites = new SiteList();
+        $reporting = new Typo3Reporting(
+            $settings,
+            new SupertextClientFactory($settings, GeneralUtility::makeInstance(RequestFactory::class)),
+            GeneralUtility::makeInstance(Registry::class),
+            $sites,
+            GeneralUtility::makeInstance(LogManager::class)->getLogger(Typo3Reporting::class),
+        );
+        return [$reporting, $settings, $sites];
     }
 
     public function keyCheck(Labels $labels, ?KeyCheck $check): string
@@ -102,10 +132,10 @@ final class StatusField
         return $html . '</p>';
     }
 
-    private function languages(Labels $labels, SiteFinder $siteFinder): string
+    private function languages(Labels $labels, SiteList $siteList): string
     {
         try {
-            $sites = $siteFinder->getAllSites();
+            $sites = $siteList->all();
         } catch (\Throwable) {
             $sites = [];
         }
