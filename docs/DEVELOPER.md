@@ -230,6 +230,34 @@ The module shots (`module-export`, `module-import-result`) export the FAQ page, 
 
 Start from a database where the FAQ page has no German translation yet. Locally, drop `demo/additional.php`: its reverse-proxy settings make TYPO3 redirect to HTTPS.
 
+## Demo movie
+
+`docs/images/demo.gif` (shown at the top of the README) is recorded by `Tests/Docs/movie.mjs` with Supertext's movie kit (`Tests/Docs/movie/`: Playwright screencast → ffmpeg; intro and outro cards, captions, cursor; Inter font under the SIL Open Font License in `movie/assets/fonts/`). TYPO3's modals (the Localize wizard, the Extension Configuration) live in the browser's top layer, above any z-index, so `movie/top-layer.mjs` moves the kit's caption, cursor and click ripples into the top layer too (as popovers) while one is open; `movie-kit.mjs` itself is the shared kit, unchanged. Like the screenshots, the movie needs a **fresh** local demo pointed at the stand-in API (FAQ page not yet translated), `ffmpeg` and, for the voice, Piper:
+
+```bash
+pip install piper-tts                       # the voice; without it (or with MOVIE_VOICE=0) the movie is silent
+cd Tests/Docs && npm install
+npm run stand-in &                          # http://127.0.0.1:8765/v1/
+# fresh local TYPO3 as for the screenshots, served with SUPERTEXT_API_KEY=test-key
+#   SUPERTEXT_API_ENDPOINT=http://127.0.0.1:8765/v1/ SUPERTEXT_REPORT_URL=http://127.0.0.1:8765/api/v1/report,
+#   and the editor account (DEMO_EDITOR_*)
+BASE_URL=http://127.0.0.1:8090 DEMO_EDITOR_EMAIL=… DEMO_EDITOR_PASSWORD=… npm run movie
+```
+
+About 58 seconds, 1280×720, an English voice and English captions. TYPO3 has no "translate" button: the extension translates while TYPO3 localizes. So the movie shows that flow: the demo editor opens the English page *FAQs* in the page module, chooses *Deutsch (Schweiz)* under *Create new translation* in the language menu, keeps all content elements in TYPO3's *Localize* wizard, picks the mode *Translate* and clicks *Localize* (the waiting time is cut), clicks *Finish* and scrolls through the German page (hidden, with the *Supertext translated …* message). The script writes the GIF (800 px, 12 fps, keep it under 3 MB) to `docs/images/demo.gif` and the MP4 to `Tests/Docs/movie/out/Typo3-Supertext-Translation.mp4` (git-ignored; `MOVIE_OUT` changes the path). The MP4 is not committed; the GIF is silent. The voice model (63 MB, pinned revision, checked by SHA-256) is downloaded once into `Tests/Docs/movie/voice-cache/` (git-ignored, never committed); the time spent generating speech is cut from the movie. `CHROMIUM_PATH` uses another Chromium than Playwright's, `PAGE_ID` another page. Re-record it in the same commit when the localization flow or the extension's messages change.
+
+**Install and configuration movie** (`Tests/Docs/movie-install.mjs`, `npm run movie:install`): the same kit, voice and look, for administrators. Same setup as above, but signed in as the demo **administrator** (a system maintainer: the setup admin is one) and with **no** `SUPERTEXT_API_KEY` in the environment (it would take precedence over the field the movie fills in):
+
+```bash
+# fresh local TYPO3 served with SUPERTEXT_API_ENDPOINT=http://127.0.0.1:8765/v1/
+#   SUPERTEXT_REPORT_URL=http://127.0.0.1:8765/api/v1/report and without SUPERTEXT_API_KEY
+BASE_URL=http://127.0.0.1:8090 DEMO_ADMIN_EMAIL=… DEMO_ADMIN_PASSWORD=… npm run movie:install
+```
+
+About 97 seconds: a terminal (`kit.terminal()`) with the commands from `docs/INSTALLATION.md` (`composer config repositories…`, `composer require`, `extension:setup`, `cache:flush`; output shortened), then the backend: *System → Settings → Configure extensions… → supertext_translation*, where the key comes from (supertext.com → Integrations → API; create an account at supertext.com), the made-up key `st-demo-0000-0000-0000` typed into *Supertext API key* and saved, *Sites → Setup →* edit the site *→ Languages → Deutsch (Schweiz)* with the *Supertext* palette (*Supertext language* Default (de-CH), *Translation review* left off), *Save*, and where editors translate: *Create new translation* in the page module's language menu. The password confirmation TYPO3 asks for before *Settings* happens before recording starts. The movie scrolls past the *Status* block of the extension configuration (it doesn't show the key check). No GIF; the MP4 goes to `Tests/Docs/movie/out/Typo3-Supertext-Translation-install.mp4` (git-ignored, not committed; `MOVIE_OUT` changes the path). Re-record it when the installation steps, the extension configuration or the site language's *Supertext* palette change.
+
+Voice: Piper voice “alba” (en_GB), trained on a dataset from the University of Edinburgh's Centre for Speech Technology Research, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+
 ## Code quality and security checks
 
 - **Checks** workflow (`.github/workflows/checks.yml`): actionlint and zizmor lint the workflows on every push and pull request; dependency review fails a pull request that adds a package with a known vulnerability (moderate or worse). Third-party actions are pinned to commit SHAs (Dependabot keeps them current), the default token is read-only and checkouts don't keep credentials. Locally: `pip install actionlint-py zizmor`, then `actionlint` and `zizmor .github/workflows` in the repo root.

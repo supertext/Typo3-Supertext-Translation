@@ -2,6 +2,8 @@
 
 Translates pages and content elements with **Supertext AI** the moment an editor localizes them in TYPO3 — via the Page module's *Translate* wizard, *Create new translation*, the List module, or the CLI. No new workflow to learn: editors keep using TYPO3's native localization.
 
+![Demo: an editor opens the English page “FAQs” in TYPO3's page module, chooses Create new translation → Deutsch (Schweiz), localizes it with the Translate wizard and checks the German page Supertext translated](docs/images/demo.gif)
+
 Works with TYPO3 13.4 LTS and 14.3 LTS, PHP 8.2+.
 
 ## How it works
