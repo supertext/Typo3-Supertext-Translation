@@ -127,7 +127,12 @@ await frame().getByText(/Configure extensions/i).first().click({ timeout: 30000 
 await page.waitForTimeout(2500);
 await page.frames().find((f) => f.url().includes('extensionConfiguration') || true).page().getByText('supertext_translation', { exact: true }).last().click();
 await page.waitForTimeout(1500);
-await shot('extension-configuration', await dialogBox('^Extension Configuration$'));
+// The key check's "(checked YYYY-MM-DD HH:MM)" changes on every run: hide it so the image
+// only changes when the screen does.
+for (const f of page.frames()) {
+  await f.evaluate(() => document.querySelectorAll('.supertext-status small').forEach((el) => { el.style.visibility = 'hidden'; })).catch(() => {});
+}
+await shot('extension-configuration',await dialogBox('^Extension Configuration$'));
 await page.keyboard.press('Escape');
 await page.waitForTimeout(800);
 
