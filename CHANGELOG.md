@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.0.0 — 2026-11-10
+
+First stable release. Every plugin release is now tested end to end against the live Supertext API (`.github/workflows/e2e.yml`).
+
 - Fixed: the *Status* block in the extension configuration (Settings → Extension Configuration) showed only *The Supertext status is not available here*. TYPO3 builds that form in the install tool's failsafe mode, where the extension's services aren't available; the block now builds what it needs itself and reads the sites from their configuration files.
 - Docs: demo movie in the README (`docs/images/demo.gif`): an editor localizes a page into German with TYPO3's *Translate* wizard and Supertext translates it. Recorded by `Tests/Docs/movie.mjs` against the demo and the stand-in API; the MP4 version (not committed) has an English voice (Piper voice “alba”, CC BY 4.0), and `Tests/Docs/movie-install.mjs` records an install and configuration movie (MP4 only).
 - Added: the Supertext support form is linked in the README, the user guide and GitHub's "New issue" page.
