@@ -8,6 +8,8 @@ apiKey =
 environment = live
 # cat=basic/api/040; type=string; label=LLL:EXT:supertext_translation/Resources/Private/Language/locallang.xlf:settings.endpoint
 endpoint =
+# cat=basic/api/045; type=string; label=LLL:EXT:supertext_translation/Resources/Private/Language/locallang.xlf:settings.reviewUrl
+reviewUrl = https://localizationreview-production.up.railway.app/v1/
 # cat=basic/api/050; type=boolean; label=LLL:EXT:supertext_translation/Resources/Private/Language/locallang.xlf:settings.versionReports
 versionReports = 1
 # cat=advanced/poll/010; type=int+; label=LLL:EXT:supertext_translation/Resources/Private/Language/locallang.xlf:settings.pollTimeout

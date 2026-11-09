@@ -31,6 +31,10 @@ jobs:
         run: php Tests/SdkTest.php
       - name: Version reports, key check and ping test
         run: php Tests/ReportingTest.php
+      - name: Sites from config.yaml test
+        run: php Tests/SiteListTest.php
+      - name: Translation files test
+        run: php Tests/TranslationFilesTest.php
       - name: Interface translations test
         run: php Tests/LanguageFilesTest.php
       - name: Demo entrypoint syntax

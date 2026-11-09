@@ -10,6 +10,11 @@ services:
       - '../Classes/Reporting/Installation.php'
       - '../Classes/Reporting/PluginHealthTransport.php'
       - '../Classes/Reporting/Reporting.php'
+      - '../Classes/Files/ExportedFile.php'
+      - '../Classes/Files/FileItem.php'
+      - '../Classes/Files/FileLanguage.php'
+      - '../Classes/Files/ImportedJob.php'
+      - '../Classes/Files/TranslationFileGlueError.php'
 
   Supertext\Typo3Translation\Hooks\DataHandlerHook:
     public: true
@@ -21,11 +26,29 @@ services:
   Supertext\Typo3Translation\Configuration\ExtensionSettings:
     public: true
 
+  Supertext\Typo3Translation\Site\SiteList:
+    public: true
+
   Supertext\Typo3Translation\Middleware\PingMiddleware:
     public: true
+
+  Supertext\Typo3Translation\Files\TranslationFileStore:
+    alias: Supertext\Typo3Translation\Files\Typo3TranslationFileStore
 
   Supertext\Typo3Translation\Command\LocalizeCommand:
     tags:
       - name: console.command
         command: 'supertext:localize'
         description: 'Localize a page (and its content) into a site language and translate it with Supertext.'
+
+  Supertext\Typo3Translation\Command\ExportCommand:
+    tags:
+      - name: console.command
+        command: 'supertext:export'
+        description: 'Export a page (and its content) for translation as an XLIFF 1.2 or HTML file.'
+
+  Supertext\Typo3Translation\Command\ImportCommand:
+    tags:
+      - name: console.command
+        command: 'supertext:import'
+        description: 'Import a translated XLIFF or HTML file exported by supertext:export.'

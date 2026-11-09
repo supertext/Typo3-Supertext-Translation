@@ -1,0 +1,97 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Module" />
+<f:section name="Content">
+    <h1>{labels.title}</h1>
+
+    <f:if condition="{jobs}">
+        <section class="mb-4" id="supertext-result">
+            <h2 class="h3">{labels.result}</h2>
+            <f:for each="{jobs}" as="job">
+                <div class="callout callout-{job.state}">
+                    <div class="callout-content">
+                        <div class="callout-title">{job.heading}</div>
+                        <div class="callout-body">
+                            <ul class="mb-0">
+                                <f:for each="{job.lines}" as="line"><li>{line}</li></f:for>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </f:for>
+        </section>
+    </f:if>
+
+    <div class="row">
+        <div class="col-12 col-xl-6 mb-4">
+            <section class="card h-100" id="supertext-export">
+                <div class="card-header"><h2 class="card-title h3 mb-0">{labels.export}</h2></div>
+                <div class="card-body">
+                    <f:if condition="{page}">
+                        <f:then>
+                            <p>{labels.exportHint}</p>
+                            <f:if condition="{languages}">
+                                <f:then>
+                                    <form action="{actionUri}" method="post">
+                                        <input type="hidden" name="action" value="export" />
+                                        <input type="hidden" name="id" value="{pageId}" />
+                                        <fieldset class="mb-3">
+                                            <legend class="form-label h4">{labels.languages}</legend>
+                                            <f:for each="{languages}" as="language">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="languages[]" value="{language.id}" id="supertext-language-{language.id}" {f:if(condition: language.checked, then: 'checked')} />
+                                                    <label class="form-check-label" for="supertext-language-{language.id}">{language.title} <span class="text-body-secondary">({language.code})</span></label>
+                                                </div>
+                                            </f:for>
+                                        </fieldset>
+                                        <fieldset class="mb-3">
+                                            <legend class="form-label h4">{labels.format}</legend>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="format" value="xliff" id="supertext-format-xliff" {f:if(condition: '{format} == \'xliff\'', then: 'checked')} />
+                                                <label class="form-check-label" for="supertext-format-xliff">{labels.formatXliff}</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="format" value="html" id="supertext-format-html" {f:if(condition: '{format} == \'html\'', then: 'checked')} />
+                                                <label class="form-check-label" for="supertext-format-html">{labels.formatHtml}</label>
+                                            </div>
+                                        </fieldset>
+                                        <button type="submit" class="btn btn-primary">{labels.download}</button>
+                                    </form>
+                                </f:then>
+                                <f:else>
+                                    <div class="callout callout-info"><div class="callout-content"><div class="callout-body">{labels.noLanguages}</div></div></div>
+                                </f:else>
+                            </f:if>
+                        </f:then>
+                        <f:else>
+                            <div class="callout callout-info"><div class="callout-content"><div class="callout-body">{labels.selectPage}</div></div></div>
+                        </f:else>
+                    </f:if>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-12 col-xl-6 mb-4">
+            <section class="card h-100" id="supertext-import">
+                <div class="card-header"><h2 class="card-title h3 mb-0">{labels.import}</h2></div>
+                <div class="card-body">
+                    <p>{labels.importHint}</p>
+                    <form action="{actionUri}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="import" />
+                        <input type="hidden" name="id" value="{pageId}" />
+                        <div class="mb-3">
+                            <label class="form-label" for="supertext-file">{labels.file}</label>
+                            <input class="form-control" type="file" name="file" id="supertext-file" accept=".xlf,.xliff,.html,.htm,.xml" required />
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="includeChanged" value="1" id="supertext-include-changed" {f:if(condition: includeChanged, then: 'checked')} />
+                            <label class="form-check-label" for="supertext-include-changed">{labels.includeChanged}</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{labels.importButton}</button>
+                    </form>
+
+                </div>
+            </section>
+        </div>
+    </div>
+</f:section>
+</html>

@@ -65,7 +65,7 @@ foreach (['de', 'fr', 'it'] as $lang) {
 // Every key the code and the extension configuration use exists.
 $used = [];
 foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root . '/Classes', FilesystemIterator::SKIP_DOTS)) as $file) {
-    preg_match_all("/'((?:settings|result|error|status|keycheck|siteLanguage)\\.[A-Za-z.]*[A-Za-z])'/", file_get_contents((string)$file), $m);
+    preg_match_all("/'((?:settings|result|error|status|keycheck|siteLanguage|file)\\.[A-Za-z.]*[A-Za-z])'/", file_get_contents((string)$file), $m);
     $used = array_merge($used, $m[1]);
 }
 // Keys built at runtime: the key check results and the tones.

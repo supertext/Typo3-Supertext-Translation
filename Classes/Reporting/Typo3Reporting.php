@@ -12,10 +12,10 @@ use Supertext\Typo3Translation\Configuration\ExtensionVersion;
 use Supertext\Typo3Translation\PluginHealth\KeyCheck;
 use Supertext\Typo3Translation\PluginHealth\PingResponse;
 use Supertext\Typo3Translation\PluginHealth\ReporterResult;
+use Supertext\Typo3Translation\Site\SiteList;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Registry;
-use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
  * Feeds Reporting with what TYPO3 knows: the site URL (the first site with an absolute
@@ -36,7 +36,7 @@ final class Typo3Reporting
         private readonly ExtensionSettings $settings,
         private readonly SupertextClientFactory $clientFactory,
         private readonly Registry $registry,
-        private readonly SiteFinder $siteFinder,
+        private readonly SiteList $sites,
         private readonly LoggerInterface $logger,
     ) {}
 
@@ -131,7 +131,7 @@ final class Typo3Reporting
     public function siteUrl(?ServerRequestInterface $request): ?string
     {
         try {
-            foreach ($this->siteFinder->getAllSites() as $site) {
+            foreach ($this->sites->all() as $site) {
                 $base = $site->getBase();
                 if (in_array(strtolower($base->getScheme()), ['http', 'https'], true) && $base->getHost() !== '') {
                     return rtrim((string)$base, '/');

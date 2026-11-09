@@ -14,7 +14,7 @@ A ready-to-run container with TYPO3 14.3, demo content in English, German and Fr
 | PHP | 8.2 or newer (tested on 8.2–8.5), with `ext-dom` |
 | Install mode | Composer-based TYPO3 (classic/non-Composer installs are not supported yet) |
 | Supertext | An account with an API key — see [step 3](#3-set-the-api-key) |
-| Network | The web server must reach `https://api.supertext.com` over HTTPS |
+| Network | The web server must reach `https://api.supertext.com` over HTTPS (and, for [Translation review](#translation-review), Supertext's review service) |
 
 ## 1. Add the package
 
@@ -71,15 +71,29 @@ The extension's own texts (the settings in the extension configuration and the s
 
 ## 4. Configure the site languages
 
-Every site language needs a **Supertext language**. Supertext accepts exactly its own codes (table below), and the extension never guesses one: whether a site's `de` means Germany or Switzerland is your decision.
+Every site language is sent to Supertext with a **Supertext language**, which you choose from a list: *Sites → Setup → edit the site → Languages → (language) → Supertext → Supertext language* (TYPO3 13: *Site Management → Sites*). The list offers every Supertext language with its name (in your backend language) and code. One choice serves both directions: for the default language it is the language Supertext translates **from**.
 
-- **Automatic:** a site language whose locale (without encoding) already is a Supertext code is used as it is, apart from case and `_`/`-`: `de_CH.UTF-8` → `de-CH`, `fr_FR` → `fr-FR`, `es` → `es`, `nl` → `nl`.
-- **Mapped:** for any other locale, choose the Supertext language in the site configuration: *Sites → Setup → edit the site → Languages → (language) → Supertext → Supertext language* (TYPO3 13: *Site Management → Sites*). The list offers every Supertext language with its name and code. Or set `supertext_code` in `config/sites/<site>/config.yaml`. Typical cases: `de` → `de-DE` or `de-CH`, `en` → `en-US` or `en-GB`, `es_ES` → `es`, `nl_NL` → `nl`, `zh_CN` → `zh-Hans`, `nb_NO` → `nb`.
-- **Not mapped:** a translation into a language that has neither stops before anything is sent to Supertext, with the message *The language … has no Supertext language yet* (the records are still localized as copies). The **Status** block in the extension configuration lists every site language with the Supertext code it is sent as and marks the ones that aren't mapped.
+- **Default:** with nothing chosen, the first entry of the list shows what the language is sent as, e.g. *Default (de-DE)*: the locale itself when it is a Supertext code (`de_CH.UTF-8` → `de-CH`, `es` → `es`), else the usual Supertext language for it (table below). Keep it, or choose another one (e.g. `de-CH` for a `de` locale used in Switzerland).
+- **— choose —:** a locale without a default (e.g. `en_IE`, `de_LI`, `fr_BE`, `gsw`, `sr_RS`) shows *— choose —*. Until you choose its Supertext language, a translation into it stops before anything is sent to Supertext, with the message *The language … has no Supertext language yet* (the records are still localized as copies).
+- The **Status** block in the extension configuration lists every site language with the Supertext code it is sent as (*default* when it is the default) and marks the languages that still need one.
 
-The default language is the **source**. It is sent as a bare language: its `supertext_code` or locale reduced to the language (`en_US.UTF-8` → `en`, `de-CH` → `de`). One `supertext_code` serves both directions, so a language that is sometimes the default and sometimes a target needs only one.
+![The Supertext palette of the site language Deutsch (Schweiz): Supertext language set to Default (de-CH), Supertext tone set to Formal, and the Translation review toggle below, off](images/site-language-supertext.png)
 
-Earlier versions of this extension gave locales without region a default region (`de` → `de-DE`, `es` → `es-ES`). Supertext rejects several of those (`es-ES`, `sl-SI`, `zh-CN`), so that is gone: after updating, check the **Status** block and map the languages it marks as *Not mapped*.
+Defaults, applied only where nothing is chosen and the locale isn't a Supertext code itself:
+
+| Locale | Sent as |
+| --- | --- |
+| `de`, `en`, `fr`, `it`, `pt` (no region) | `de-DE`, `en-US`, `fr-FR`, `it-IT`, `pt-PT` |
+| `zh`, `zh_CN`, `zh_SG` / `zh_TW`, `zh_HK`, `zh_MO` | `zh-Hans` / `zh-Hant` |
+| `sr`, `sr_Latn_RS` / `sr_Cyrl_RS` | `sr-Latn` / `sr-Cyrl` |
+| A region of a language Supertext offers without region (`es_ES`, `es_MX`, `nl_NL`, `nb_NO`, `sl_SI`, …) | the language (`es`, `nl`, `nb`, `sl`, …) |
+| Anything else that isn't a Supertext code (`en_IE`, `de_LI`, `fr_BE`, `gsw`, `sr_RS`, `no`) | nothing: choose it |
+
+The default language is the **source**. It is sent as a bare language: its Supertext language or locale reduced to the language (`en_US.UTF-8` → `en`, `de-CH` → `de`).
+
+**Translation review** (same palette, target languages only): on or off, see [Translation review](#translation-review).
+
+**Tone** (*Supertext tone*, same palette): formal or informal address, offered only for the languages with ✓ in the *Tone* column below; the field appears only for those (after saving the language choice). Saving the form clears a tone the chosen language doesn't offer. A tone set in the YAML for such a language makes Supertext refuse the translation (*Supertext offers no formal or informal tone for this language*); the Status block marks it.
 
 ![Site configuration, Languages tab: English (en-US), Deutsch (Schweiz) (de-CH) and Français (Suisse) (fr-CH)](images/site-languages.png)
 
@@ -90,13 +104,14 @@ languages:
   -
     languageId: 1
     locale: de_CH.UTF-8
-    supertext_code: de-CH          # Supertext language (sent as it is); empty = automatic
+    supertext_code: de-CH          # Supertext language (sent as it is); empty = the default for the locale
     supertext_politeness: more     # more = formal (Sie/vous/Lei), less = informal (du/tu); empty = default
+    supertext_review: true         # Translation review: translations into it go through Supertext's review service
 ```
 
-A `supertext_code` that isn't in the list below is sent as it is, so a language Supertext adds later works before the extension knows it (the form's list only offers the known ones; set it in the YAML).
+A `supertext_code` that isn't in the list below is sent as it is, so a language Supertext adds later works before the extension knows it: set it in the YAML; the form then shows it as *… (not in the Supertext list, sent as it is)* and keeps it. A code typed into the YAML in another spelling (`de_ch`) is shown and saved as the list's code (`de-CH`); saving the form drops a new value that isn't in the list (the language then uses its default).
 
-**Tone:** formal or informal address exists only for some languages (column *Tone* below). For the others, leave *Supertext tone* at *Default*; otherwise Supertext refuses the translation (*Supertext offers no formal or informal tone for this language*) and the Status block marks the language.
+**From an older version:** run the upgrade wizard *Supertext: language codes of the site languages* (*Admin Tools → Upgrade → Upgrade Wizard*, or `vendor/bin/typo3 upgrade:run supertextTranslation_languageCodes`). It rewrites `supertext_code` values of 0.1 (free text) to the list's codes, keeping what they were sent as: `de_ch` → `de-CH`, `de` → `de-DE`, `es_ES` → `es`, `de_DE_formal` → `de-DE` with formal tone (unless a tone is set). Unknown codes stay as they are. Values already in the list are untouched, so the wizard only appears when there is something to do.
 
 ### Supertext languages
 
@@ -161,7 +176,8 @@ vendor/bin/typo3 supertext:localize <page-uid> <language-id>
 | `enabled` | on | Translate automatically on localization |
 | `apiKey` | – | Supertext API key, with or without the `Supertext-Auth-Key ` prefix (`SUPERTEXT_API_KEY` wins) |
 | `environment` | live | `live`, `staging` or `testing` API |
-| `endpoint` | – | Custom base URL (`SUPERTEXT_API_ENDPOINT` wins) |
+| `endpoint` | – | Custom base URL (`SUPERTEXT_API_ENDPOINT` wins). For [Translation review](#translation-review) use the site languages' toggle instead |
+| `reviewUrl` | Supertext's review service | Address of the review service for site languages with *Translation review* on (`SUPERTEXT_REVIEW_URL` wins). Empty turns review off for every language. Only change it when Supertext gives you another address |
 | `pollTimeout` | 180 s | Maximum wait per translation |
 | `pollInterval` | 2 s | Time between status checks |
 | `skipBodytextCTypes` | `html` | Content types whose bodytext is code and must not be translated |
@@ -173,8 +189,9 @@ Per site language (site configuration, see [step 4](#4-configure-the-site-langua
 
 | Key | Default | Purpose |
 | --- | --- | --- |
-| `supertext_code` | automatic | Supertext language of this site language (the default language: its source). Empty = the locale, if it is a Supertext code |
+| `supertext_code` | default | Supertext language of this site language (the default language: its source), chosen from the list. Empty = the locale if it is a Supertext code, else its default (see the table in [section 4](#4-configure-the-site-languages)); locales without either need one |
 | `supertext_politeness` | default | `more` (formal) or `less` (informal), only for languages that offer it |
+| `supertext_review` | off | *Translation review*: translations into this language go through Supertext's review service (see [Translation review](#translation-review)). Target languages only |
 
 Environment variables:
 
@@ -182,7 +199,21 @@ Environment variables:
 | --- | --- |
 | `SUPERTEXT_API_KEY` | API key; wins over the setting |
 | `SUPERTEXT_API_ENDPOINT` | API base URL; wins over `environment` and `endpoint` |
+| `SUPERTEXT_REVIEW_URL` | Review service for languages with *Translation review* on; wins over `reviewUrl` when not empty |
 | `SUPERTEXT_VERSION_REPORTS` | `0` (or `false`, `off`, `no`) turns version information off, `1` (`true`, `on`, `yes`) on; wins over `versionReports` |
+
+## Translation review
+
+With **Translation review**, people check the translations on the website itself and correct them there: customers or Supertext linguists open the original and the translated page side by side in Chrome with the *Supertext Localization Review* extension and fix texts in a side panel. Their corrections come back into TYPO3.
+
+Turn it on per language in the site language that is translated **into**: *Sites → Setup → edit the site → Languages → (language, e.g. Deutsch (Schweiz)) → Supertext → switch on **Translation review** → save* (TYPO3 13: *Site Management → Sites*), or `supertext_review: true` in `config/sites/<site>/config.yaml`. Switch it off again the same way; nothing else changes.
+
+- Translations into that language then go through Supertext's review service instead of directly to Supertext. It answers exactly like Supertext and passes everything on with your API key, so billing, languages, tone and error messages stay the same.
+- The review service keeps every translation of your account. A text it has translated before gets the same translation again (without a new Supertext call), and once a reviewer has corrected it, the corrected text.
+- **Corrections arrive with the next translation:** after a review, translate the content into that language again (delete the translation and localize it again, see the [user guide](USER_GUIDE.md)) to bring the corrections into TYPO3.
+- Reviewers get a review link for your site from Supertext; nothing to set up in TYPO3.
+- The review service works with keys of the **live** Supertext API. With `environment` `staging` or `testing` (or a custom `endpoint`), leave review off.
+- *Export for translation* and *Import translation* don't use the review service (they don't call Supertext at all). The automatic API key check and the version information still go directly to Supertext.
 
 ## Version information and the API key check
 
@@ -203,11 +234,23 @@ Environment variables:
 
 **Stored locally:** what was reported last, the time of a failed report and the latest key check (with a fingerprint of the key, never the key) in TYPO3's registry (table `sys_registry`, namespace `supertext_translation`), plus a fingerprint of the extension configuration to notice saves.
 
+## Translation files (export and import)
+
+The backend module **Content → Supertext** (*Web → Supertext* in TYPO3 13) and the commands `supertext:export` / `supertext:import` (see the [user guide](USER_GUIDE.md#translate-with-a-file-xliff-or-html)) export a page as an XLIFF 1.2 or HTML file and import the translated file. There is nothing to configure, and no API key is needed for them (nothing is sent to Supertext).
+
+![The Supertext module: Export for translation with the site's languages and the file format](images/module-export.png)
+
+- **Access to the module:** administrators have it. For editors, tick *Content > Supertext* (module key `supertext_translation_files`) under *Modules* in their backend user group (*Administration → Permissions → Backend user groups*, *Access Lists* tab). Without it they can still translate with Supertext AI through TYPO3's own *Localize* step.
+- **Permissions:** the module works as the logged-in user: export only offers pages the user may see and site languages the user may edit, and the import writes through the DataHandler as that user, so page permissions, allowed languages and table/field rights apply (records the user may not edit are reported in the import result). The commands run as TYPO3's CLI user (`_cli_`, an administrator), so whoever may run `vendor/bin/typo3` on the server may export and import everything. Both write like a translation, with history and reference index.
+- **File size:** files larger than 10 MB are refused before they are read. Uploads in the module also need PHP's `upload_max_filesize` and `post_max_size` to allow them (the demo uses 32M); a larger upload than PHP allows shows *The file is too large (at most 10 MB).* Imported files are parsed in memory and not stored; the SDK refuses files that aren't well-formed XLIFF or HTML (no DTDs or entities) and takes the formatting only from the current original text.
+- New translations created by an import are hidden for review, like every new translation; existing translations are overwritten with the file's texts.
+
 ## Updating
 
 ```bash
 composer update supertext/typo3-translation
 vendor/bin/typo3 extension:setup -e supertext_translation
+vendor/bin/typo3 upgrade:run supertextTranslation_languageCodes   # only listed when old language codes need it
 vendor/bin/typo3 cache:flush
 ```
 
@@ -228,7 +271,7 @@ Existing translations stay untouched; only automatic translation stops.
 | *No Supertext API key configured* | Set the key (step 3); generate one at [supertext.com → Integrations → API](https://www.supertext.com/en/integrations/api). Records were still localized as plain copies. |
 | *Authentication failed* | The key is wrong or revoked. Check it, or generate a new one at [supertext.com → Integrations → API](https://www.supertext.com/en/integrations/api) (Admin role required). |
 | *has no site language N* | The page isn't inside a site, or the language isn't defined in that site's configuration. |
-| *The language … has no Supertext language yet* | The site language's locale isn't a Supertext code and no Supertext language is chosen for it. Choose one (step 4); nothing was sent to Supertext. |
+| *The language … has no Supertext language yet* | The site language has no Supertext language chosen, and its locale is neither a Supertext code nor has a default (the select shows *— choose —*). Choose one (step 4); nothing was sent to Supertext. |
 | *Supertext offers no formal or informal tone for this language* | `supertext_politeness` is set for a language without formal/informal (e.g. `en-US`, `rm`, `sq`, Serbian, Swiss German). Set *Supertext tone* to *Default*. |
 | *Supertext rejected the API key* (Status block) | The key is wrong, incomplete or revoked. Copy the whole key again, or generate a new one at [supertext.com → Integrations → API](https://www.supertext.com/en/integrations/api) (Admin role required). No account yet? [Create one at supertext.com](https://www.supertext.com/person/en/account/signin). |
 | *The API key couldn't be checked* (Status block) | Supertext couldn't be reached, or answered with an error (HTTP status in brackets). The settings are saved; open the configuration again later. |
@@ -236,7 +279,9 @@ Existing translations stay untouched; only automatic translation stops.
 | *Timed out waiting* | Very large pages; raise `pollTimeout` (and PHP's `max_execution_time`). |
 | *Supertext does not support this language pair* | Supertext rejected the source/target combination. Check the Supertext language (`supertext_code`) of the target language and of the default language against the [list](#supertext-languages). |
 | *The translation from Supertext was empty or incomplete* | Supertext answered without some of the texts. Translate again; if it persists, contact Supertext support with the log entry. |
-| *Could not reach Supertext* | The server can't make outbound HTTPS calls; check firewall/proxy (`$GLOBALS['TYPO3_CONF_VARS']['HTTP']['proxy']`). |
+| *Could not reach Supertext* | The server can't make outbound HTTPS calls; check firewall/proxy (`$GLOBALS['TYPO3_CONF_VARS']['HTTP']['proxy']`). For languages with *Translation review* on, the server must also reach Supertext's review service. |
+| *Authentication failed* only for languages with *Translation review* | The review service only works with keys of the live Supertext API: with `environment` `staging`/`testing` (or a custom `endpoint`) leave review off. |
+| Reviewers' corrections don't show up in TYPO3 | They arrive with the next translation: delete the translation and translate into that language again. Check that the site language's *Translation review* is on. |
 
 Errors are also written to the TYPO3 log (`var/log/typo3_*.log`).
 

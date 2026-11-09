@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Supertext\Typo3Translation\Configuration;
 
+use Supertext\Typo3Translation\Api\SupertextClientFactory;
 use Supertext\Typo3Translation\PluginHealth\InstallationReporter;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
@@ -55,6 +56,28 @@ final class ExtensionSettings
             $endpoint = self::ENVIRONMENTS[$environment] ?? self::ENVIRONMENTS['live'];
         }
         return rtrim($endpoint, '/') . '/';
+    }
+
+    /**
+     * The review service for site languages with "Translation review" on: SUPERTEXT_REVIEW_URL
+     * (when not empty) wins over the setting reviewUrl, whose default is Supertext's review
+     * service. '' = review off for every language (also when it is the normal API URL).
+     */
+    public function getReviewUrl(): string
+    {
+        $fromEnv = getenv('SUPERTEXT_REVIEW_URL');
+        if (is_string($fromEnv) && trim($fromEnv) !== '') {
+            $url = trim($fromEnv);
+        } elseif (array_key_exists('reviewUrl', $this->config)) {
+            $url = trim((string)$this->config['reviewUrl']);
+        } else {
+            $url = SupertextClientFactory::REVIEW_URL;
+        }
+        if ($url === '') {
+            return '';
+        }
+        $url = rtrim($url, '/') . '/';
+        return $url === $this->getBaseUrl() ? '' : $url;
     }
 
     public function getPollTimeout(): int
