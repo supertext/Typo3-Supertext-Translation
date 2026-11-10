@@ -27,7 +27,7 @@ composer config repositories.supertext-typo3 vcs https://github.com/Supertext/Ty
 composer require supertext/typo3-translation:dev-main
 ```
 
-The extension brings the [Supertext SDK](https://github.com/Supertext/Supertext-API-SDK-and-Guide) it uses to talk to Supertext, and Supertext Plugin Health for the version reports, with it; there is nothing else to install.
+The extension brings the [Supertext SDK](https://github.com/Supertext/Supertext-API-SDK-Guide) it uses to talk to Supertext, and Supertext Plugin Health for the version reports, with it; there is nothing else to install.
 
 The repository is private for now, so Composer needs a GitHub token with read access (`composer config --global github-oauth.github.com <token>`).
 

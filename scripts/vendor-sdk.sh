@@ -15,7 +15,7 @@ trap 'rm -rf "$TMP"' EXIT
 if [ -n "${SDK_DIR:-}" ]; then
     SRC="$SDK_DIR"
 else
-    git clone --quiet https://github.com/Supertext/Supertext-API-SDK-and-Guide "$TMP/sdk"
+    git clone --quiet https://github.com/Supertext/Supertext-API-SDK-Guide "$TMP/sdk"
     git -C "$TMP/sdk" checkout --quiet "$REF"
     SRC="$TMP/sdk"
 fi
@@ -33,7 +33,7 @@ printf '%s\n' "$VERSION" > "$DEST/VERSION"
 cat > "$DEST/README.md" <<EOF
 # Supertext SDK (bundled copy)
 
-PHP part of the [Supertext SDK](https://github.com/Supertext/Supertext-API-SDK-and-Guide),
+PHP part of the [Supertext SDK](https://github.com/Supertext/Supertext-API-SDK-Guide),
 version $VERSION, commit \`$COMMIT\`, namespace \`Supertext\\Typo3Translation\\Sdk\` instead of \`Supertext\\Sdk\`
 (API classes in \`Supertext\\Typo3Translation\\Sdk\\V1\`).
 

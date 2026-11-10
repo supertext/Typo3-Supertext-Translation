@@ -85,7 +85,7 @@ Lessons from the live API: **Languages:** only the codes Supertext's `GET featur
 
 **Commando Center:** version reports, the automatic API key check and the ping endpoint (`/supertext/ping`) go through Supertext Plugin Health's `InstallationReporter` with the SDK's key check (`Client::checkApiKey()`, `Protocol::apiKeyFingerprint()`, `SDK_VERSION`); the glue is `Classes/Reporting/` (state in the registry), the setting is `versionReports` (`SUPERTEXT_VERSION_REPORTS=0` turns it off). Reporting must never break a save or a translation. See `docs/DEVELOPER.md` → *Version reports, API key check and ping*.
 
-Supertext API calls go through the bundled SDK in `lib/supertext-sdk/` (namespace `Supertext\Typo3Translation\Sdk`, API classes in `…\Sdk\V1`). Never edit it: fix the SDK in Supertext-API-SDK-and-Guide, then run `scripts/vendor-sdk.sh`. The same for the bundled Supertext Plugin Health in `lib/supertext-plugin-health/` (namespace `Supertext\Typo3Translation\PluginHealth`): never edit it, fix it in Commando-Center-Supertext-Translation → `plugin-health/`, then run `scripts/vendor-plugin-health.sh <tag>`.
+Supertext API calls go through the bundled SDK in `lib/supertext-sdk/` (namespace `Supertext\Typo3Translation\Sdk`, API classes in `…\Sdk\V1`). Never edit it: fix the SDK in Supertext-API-SDK-Guide, then run `scripts/vendor-sdk.sh`. The same for the bundled Supertext Plugin Health in `lib/supertext-plugin-health/` (namespace `Supertext\Typo3Translation\PluginHealth`): never edit it, fix it in Commando-Center-Supertext-Translation → `plugin-health/`, then run `scripts/vendor-plugin-health.sh <tag>`.
 
 ## This repo
 
