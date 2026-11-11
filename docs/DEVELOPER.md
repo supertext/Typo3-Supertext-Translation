@@ -192,7 +192,7 @@ The public demo is a container built from `demo/Dockerfile`: TYPO3 14.3 with the
 
 | File | Purpose |
 | --- | --- |
-| `Dockerfile` | `php:8.3-apache` + extensions, `composer install` from the lock file, extension copied to `packages/supertext_translation` |
+| `Dockerfile` | `php:8.5-apache` + extensions, `composer install` from the lock file, extension copied to `packages/supertext_translation` |
 | `composer.json`, `composer.lock` | The demo project (TYPO3 core packages, Camino, this extension via a path repository) |
 | `entrypoint.sh` | Keeps only Apache's prefork MPM (Railway otherwise fails with *More than one MPM loaded*), links persistent folders into `/data`, installs TYPO3 on first boot, creates missing demo accounts and runs `extension:setup` + `cache:flush` on every boot |
 | `site-config.yaml` | Site configuration written on first boot (languages, `supertext_politeness`) |

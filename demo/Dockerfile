@@ -3,14 +3,15 @@
 #   docker build -f demo/Dockerfile -t supertext-typo3-demo .
 # Persistent state lives in /data (mount a volume there). See demo/README.md.
 
-FROM php:8.3-apache
+FROM php:8.5-apache
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       libicu-dev libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev libwebp-dev \
       graphicsmagick unzip git \
  && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
- && docker-php-ext-install -j"$(nproc)" intl zip gd opcache \
+ && docker-php-ext-install -j"$(nproc)" intl zip gd \
+ && { php -m | grep -q 'Zend OPcache' || docker-php-ext-install opcache; } \
  && a2enmod rewrite headers expires deflate \
  && rm -rf /var/lib/apt/lists/*
 
