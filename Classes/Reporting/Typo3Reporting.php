@@ -12,10 +12,13 @@ use Supertext\Typo3Translation\Configuration\ExtensionVersion;
 use Supertext\Typo3Translation\PluginHealth\KeyCheck;
 use Supertext\Typo3Translation\PluginHealth\PingResponse;
 use Supertext\Typo3Translation\PluginHealth\ReporterResult;
+use Supertext\Typo3Translation\Service\LanguageResolver;
 use Supertext\Typo3Translation\Site\SiteList;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Registry;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Feeds Reporting with what TYPO3 knows: the site URL (the first site with an absolute
@@ -38,6 +41,7 @@ final class Typo3Reporting
         private readonly Registry $registry,
         private readonly SiteList $sites,
         private readonly LoggerInterface $logger,
+        private readonly ?PackageManager $packages = null,
     ) {}
 
     public function reporting(): Reporting
@@ -69,6 +73,67 @@ final class Typo3Reporting
             $this->logger->debug('Supertext version report skipped: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * "Send configuration to Supertext" (backend module, administrators): the active extensions that
+     * aren't part of TYPO3 itself and every site language with its Supertext code, in one report.
+     *
+     * @return array{sent: bool, extensions: int, languages: int}|null null with reports off
+     */
+    public function sendConfiguration(?ServerRequestInterface $request = null): ?array
+    {
+        if (!$this->reportsEnabled()) {
+            return null;
+        }
+        $extensions = $this->installedExtensions();
+        $languages = [];
+        try {
+            foreach ($this->sites->all() as $site) {
+                foreach ($site->getAllLanguages() as $language) {
+                    $locale = LanguageResolver::localeOf($language);
+                    $languages[] = [
+                        'code' => $site->getIdentifier() . ':' . $locale,
+                        'supertext' => LanguageResolver::targetCodeOrNull($locale, LanguageResolver::overrideOf($language)),
+                    ];
+                }
+            }
+        } catch (\Throwable) {
+            // A report without languages still has the extensions.
+        }
+        $result = $this->reporting()->sendConfiguration($this->installation($request ?? $this->currentRequest()), $extensions, $languages);
+        return ['sent' => (bool)$result?->sent, 'extensions' => count($extensions), 'languages' => count($languages)];
+    }
+
+    /**
+     * Active extensions except TYPO3's own (framework packages): Composer name and version.
+     *
+     * @return list<array{name: string, version: ?string, active: bool, type: string}>
+     */
+    public function installedExtensions(): array
+    {
+        $out = [];
+        try {
+            $packages = $this->packages ?? GeneralUtility::makeInstance(PackageManager::class);
+            foreach ($packages->getActivePackages() as $package) {
+                $meta = $package->getPackageMetaData();
+                if ($meta->isFrameworkType()) {
+                    continue;
+                }
+                $name = (string)($package->getValueFromComposerManifest('name') ?? '');
+                $version = (string)$meta->getVersion();
+                $out[] = [
+                    'name' => $name !== '' ? $name : $package->getPackageKey(),
+                    'version' => $version !== '' ? ltrim($version, 'v') : null,
+                    'active' => true,
+                    'type' => 'extension',
+                ];
+            }
+        } catch (\Throwable) {
+            // A report without extensions still has the languages.
+        }
+        usort($out, static fn(array $a, array $b): int => strcmp($a['name'], $b['name']));
+        return $out;
     }
 
     /**

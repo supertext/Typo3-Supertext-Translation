@@ -129,6 +129,9 @@ final class StatusField
             $installation = $reporting->installation($request instanceof \Psr\Http\Message\ServerRequestInterface ? $request : null);
             $html .= '<br>' . $this->e($installation->callbackUrl !== null ? $labels->get('status.pingUrl', $installation->callbackUrl) : $labels->get('status.noSiteUrl'));
         }
+        if ($enabled) {
+            $html .= '<br>' . $this->e($labels->get('status.config'));
+        }
         return $html . '</p>';
     }
 

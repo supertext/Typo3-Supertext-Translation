@@ -68,7 +68,7 @@ The extension talks to Supertext through the official **Supertext SDK for PHP** 
 
 **Bundled copy:** `lib/supertext-plugin-health/` (sources, `LICENSE`, `COMMIT`, `VERSION`, a short README), namespace changed from `Supertext\PluginHealth` to `Supertext\Typo3Translation\PluginHealth`, autoloaded by the extension's `composer.json` like the SDK; PHPStan analyses `Classes/` only.
 
-- Update it with `scripts/vendor-plugin-health.sh [commit-or-branch]`, e.g. `scripts/vendor-plugin-health.sh plugin-health-v0.1.0` (default `main`; `PLUGIN_HEALTH_DIR=<clone>` uses a local clone of Commando-Center-Supertext-Translation), run the tests, and commit with a CHANGELOG entry.
+- Update it with `scripts/vendor-plugin-health.sh [commit-or-branch]`, e.g. `scripts/vendor-plugin-health.sh plugin-health-v0.4.0` (default `main`; `PLUGIN_HEALTH_DIR=<clone>` uses a local clone of Commando-Center-Supertext-Translation), run the tests, and commit with a CHANGELOG entry.
 - Never edit the copy: fix it in Commando-Center-Supertext-Translation → `plugin-health/`, then re-run the script.
 
 The protocol, shared with the WordPress plugin and every other Supertext CMS plugin:
@@ -121,6 +121,7 @@ Protocol: Commando-Center-Supertext-Translation → `docs/DEVELOPER.md` → *Rep
 | The extension configuration was saved (its fingerprint differs from the stored one; TYPO3 has no "saved" event) | `afterSettingsSaved` (`installed` the first time, else `settings_saved`) | The *Status* field when the configuration is opened again (synchronously, so the result shows), or the next translation / `supertext:localize` (after the response) |
 | Back-end requests that run the extension: opening its configuration, every translation (DataHandler hook), `supertext:localize` | `onRequest` (checks a changed key, reports `upgraded` or `api_key_check` when due) | `Typo3Reporting::later()`: a shutdown function, after `fastcgi_finish_request()` on PHP-FPM; never on front-end page views |
 | A translation got 401/403 | `authenticationFailed` | `TranslationService` |
+| *Send configuration to Supertext* (card *Supertext support* in the *Supertext* backend module, administrators, `action=sendConfiguration`) | `sendExtensions`: an `extensions` report, at once (also within the hour after a failed report), nothing with reports off | `TranslationFilesController::sendConfiguration()` → `Typo3Reporting::sendConfiguration()` (active packages that aren't TYPO3 framework packages, Composer name and version; every site language as `<site>:<locale>` with `LanguageResolver::targetCodeOrNull()`) → `Reporting::sendConfiguration()` |
 
 There is no *Test connection* button and no check command, so `testConnection` and `reportCheck` aren't used.
 
@@ -170,7 +171,7 @@ The tests above use fakes. `.github/workflows/e2e.yml` also tests against the **
 1. **Real API** (repository or organization secret `SUPERTEXT_API_KEY`; without it these steps are skipped with a warning). Version reports are off (`SUPERTEXT_VERSION_REPORTS=0`), so CI runs don't appear in the Commando Center.
    - `Tests/E2E/features.mjs` asks the live `GET features` (cost-free, no extension or SDK code) whether every pair the demo translates (`en` → `de-CH`, `fr-CH`, as the extension sends them) is offered; a missing pair fails the run. Whether the extension's own language list matches the API is the SDK's job (its own tests).
    - `Tests/E2E/live.mjs` (Playwright): the editor account translates every page of the site into every target language through the Page module's language menu and the **Localize** wizard (Translate mode), exactly as the user guide describes; no Supertext warning may appear and the green *Supertext translated …* message must. Then the database is read through `docker exec` (PHP, as `www-data`) and checked: every page, content element and Camino list item has exactly one translation per language; new pages and content elements are hidden for review; every text field is filled and at least 80 % of them changed (single words may stay the same); technical fields (`CType`, `colPos`, list items' `fieldname` and `link`, file references) are unchanged; no `data-st-id`/placeholder or *[Translate to …]* prefix is left; bold, italics, lists, paragraphs and links are kept (counted per field); the text is in the target language (common words of each language counted) and de-CH has no "ß". The extension has no retranslate action (it never overwrites an existing translation), so instead of translating twice it checks that the Page module no longer offers a new translation of a translated page. Each run translates the Camino site once into two languages.
-2. **Stand-in API**: the docs screenshots (see *Docs screenshots*), so the images don't change with each machine translation. If `docs/images/` changed and the screenshot step succeeded, a second job (only on `main`) commits the new images straight to `main` ("Docs: regenerate screenshots"). There is no pull request to review, and the push, made with the workflow's own token, starts no other workflow.
+2. **Docs screenshots** (see *Docs screenshots*) with the same secret, so the guides show real Supertext translations; without it the stand-in API translates. Version reports go to the stand-in either way. If `docs/images/` changed and the screenshot step succeeded, a second job (only on `main`) commits the new images straight to `main` ("Docs: regenerate screenshots"). There is no pull request to review, and the push, made with the workflow's own token, starts no other workflow.
 
 If a run fails, the artifact `e2e-debug` has the result pages (`artifacts/`), the container logs, TYPO3's logs and the stand-in log. Locally:
 
@@ -233,7 +234,9 @@ The older install on demo.supertext.com (`/typo3-translation/`) is no longer dep
 
 ## Docs screenshots
 
-The images in `docs/images/` are generated by `Tests/Docs/screenshots.mjs` (Playwright) from a local, freshly installed demo, against `Tests/Docs/stand-in.mjs`, which answers like the Supertext API and returns real German for the Camino FAQ page (`sample-de.json`). Regenerate them whenever the backend screens they show change:
+**Real translations:** in CI (`.github/workflows/e2e.yml`) the screenshot step uses the real Supertext API with the secret `SUPERTEXT_API_KEY`, so the images show real Supertext output. The stand-in described here translates only without a key (forks, local runs); it always takes the version reports (`SUPERTEXT_REPORT_URL`), so nothing reaches the live Commando Center. Real translations can differ a little between runs, so the weekly run commits new images now and then.
+
+The images in `docs/images/` are generated by `Tests/Docs/screenshots.mjs` (Playwright) from a local, freshly installed demo, against the real Supertext API (CI, `SUPERTEXT_API_KEY`) or, without a key, against `Tests/Docs/stand-in.mjs`, which answers like the Supertext API and returns real German for the Camino FAQ page (`sample-de.json`). Regenerate them whenever the backend screens they show change:
 
 ```bash
 # a local TYPO3 like the demo container: demo/composer.json + this extension in packages/,

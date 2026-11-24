@@ -69,7 +69,8 @@ final class Reporting
         return InstallationReporter::pingResponse($challenge, self::PLUGIN_NAME, $enabled);
     }
 
-    public function reporter(Installation $installation): InstallationReporter
+    /** @param (callable(): list<array{code: string, supertext: ?string}>)|null $languages the language mapping (sendConfiguration only) */
+    public function reporter(Installation $installation, ?callable $languages = null): InstallationReporter
     {
         $siteUrl = $installation->siteUrl;
         return new InstallationReporter(
@@ -89,6 +90,7 @@ final class Reporting
             reportUrl: $this->reportUrl,
             transport: $this->transport !== null ? new PluginHealthTransport($this->transport) : null,
             now: $this->now,
+            languages: $languages,
         );
     }
 
@@ -137,6 +139,25 @@ final class Reporting
             if ($saved) {
                 $this->storage->set(self::SETTINGS_KEY, $installation->settingsFingerprint);
             }
+            return $result;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * "Send configuration to Supertext": one `extensions` report with the installed extensions and the
+     * language mapping, sent now (also within the hour after a failed report). Nothing with reports off.
+     *
+     * @param list<array{name: string, version?: ?string, active?: ?bool, type?: ?string}> $extensions
+     * @param list<array{code: string, supertext: ?string}>                                $languages
+     */
+    public function sendConfiguration(Installation $installation, array $extensions, array $languages): ?ReporterResult
+    {
+        try {
+            $result = $this->reporter($installation, static fn(): array => $languages)
+                ->sendExtensions(ReporterState::from($this->storage->get(self::STATE_KEY)), $extensions);
+            $this->storage->set(self::STATE_KEY, (string)json_encode($result->state, JSON_UNESCAPED_SLASHES));
             return $result;
         } catch (\Throwable) {
             return null;

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Regenerates docs/images from a local, freshly installed TYPO3 demo whose extension
- * talks to stand-in.mjs. See docs/DEVELOPER.md -> Docs screenshots.
+ * Regenerates docs/images from a local, freshly installed TYPO3 demo whose extension talks to the
+ * real Supertext API (CI: SUPERTEXT_API_KEY) or, without a key, to stand-in.mjs.
+ * See docs/DEVELOPER.md -> Docs screenshots.
  *
  *   BASE_URL (default http://127.0.0.1:8090), DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD
  *   (must be a system maintainer: the setup admin is one).
@@ -86,7 +87,7 @@ await next();
 await page.waitForTimeout(1200);
 await shot('wizard-confirm', await dialogBox()); // step: confirm
 await next('Localize'); // Supertext translates here
-await page.getByText(/Localization completed/).waitFor({ timeout: 120000 });
+await page.getByText(/Localization completed/).waitFor({ timeout: 300000 });
 await next('Finish');
 await frame().getByText(/Supertext translated/).waitFor({ timeout: 30000 });
 await page.waitForTimeout(1500);

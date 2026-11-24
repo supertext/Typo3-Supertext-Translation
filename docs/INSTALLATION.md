@@ -230,6 +230,8 @@ Turn it on per language in the site language that is translated **into**: *Sites
 
 **The API key check** runs whether or not version information is sent: after the configuration was saved, when the key (for example from `SUPERTEXT_API_KEY`) changed since the last check, and when Supertext rejects the key during a translation. It is Supertext's cost-free `features` call; nothing is translated or billed. The Status block shows the latest result with its time.
 
+**Send configuration to Supertext** (backend module *Supertext*, card *Supertext support*, administrators only) sends Supertext, on demand, the extensions installed in TYPO3 (Composer name and version; TYPO3's own system extensions are left out) and the Supertext language of each site language, so Supertext support can help with a setup question. It sends nothing else, and only while version information is on; a message then says how many extensions and languages were sent.
+
 **The ping endpoint** `GET <TYPO3 root URL>/supertext/ping?challenge=…` (e.g. `https://www.example.ch/supertext/ping`) is public (no login, no session, no page cache) and answers only `{"ok":true,"plugin":"Typo3-Supertext-Translation","challenge":"…"}`, so Supertext can see that the site is reachable from the internet. It returns nothing else: no versions, no settings, no data. A proxy, firewall or basic-auth protection in front of TYPO3 may block it; that only means Supertext sees the site as not reachable.
 
 **Stored locally:** what was reported last, the time of a failed report and the latest key check (with a fingerprint of the key, never the key) in TYPO3's registry (table `sys_registry`, namespace `supertext_translation`), plus a fingerprint of the extension configuration to notice saves.

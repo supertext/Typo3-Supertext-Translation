@@ -324,6 +324,27 @@
 			<trans-unit id="files.uploadFailed">
 				<source>The file could not be uploaded. Please try again.</source>
 			</trans-unit>
+			<trans-unit id="config.title">
+				<source>Supertext support</source>
+			</trans-unit>
+			<trans-unit id="config.hint">
+				<source>Send configuration to Supertext sends Supertext the extensions installed in TYPO3 (name, version; TYPO3's own are left out) and the Supertext language of each site language, so Supertext support can help better. Nothing else is sent.</source>
+			</trans-unit>
+			<trans-unit id="config.button">
+				<source>Send configuration to Supertext</source>
+			</trans-unit>
+			<trans-unit id="config.sent">
+				<source>Sent: %s extensions, %s languages.</source>
+			</trans-unit>
+			<trans-unit id="config.failed">
+				<source>The configuration couldn't be sent. Try again later.</source>
+			</trans-unit>
+			<trans-unit id="config.off">
+				<source>Turn on "Send version information to Supertext" in the extension configuration to send the configuration.</source>
+			</trans-unit>
+			<trans-unit id="status.config">
+				<source>To send Supertext the installed extensions and the language mapping for support, use Send configuration to Supertext in the Supertext backend module (administrators).</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

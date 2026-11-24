@@ -13,6 +13,7 @@ use Supertext\Typo3Translation\Files\ExportedFile;
 use Supertext\Typo3Translation\Files\TranslationFileGlue;
 use Supertext\Typo3Translation\Files\TranslationFileGlueError;
 use Supertext\Typo3Translation\Localization\Labels;
+use Supertext\Typo3Translation\Reporting\Typo3Reporting;
 use Supertext\Typo3Translation\Sdk\Files\TranslationFileError;
 use Supertext\Typo3Translation\Service\LanguageResolver;
 use TYPO3\CMS\Backend\Attribute\AsController;
@@ -44,6 +45,7 @@ final class TranslationFilesController
         private readonly TranslationFileGlue $glue,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly StreamFactoryInterface $streamFactory,
+        private readonly Typo3Reporting $reporting,
     ) {}
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -91,6 +93,8 @@ final class TranslationFilesController
             } elseif ($action === 'import') {
                 $includeChanged = !empty($body['includeChanged']);
                 $jobs = $this->import($request->getUploadedFiles()['file'] ?? null, $includeChanged, $labels, $view);
+            } elseif ($action === 'sendConfiguration' && $user->isAdmin()) {
+                $this->sendConfiguration($request, $labels, $view);
             }
         }
 
@@ -106,6 +110,7 @@ final class TranslationFilesController
             'includeChanged' => $includeChanged,
             'jobs' => $jobs,
             'maxBytes' => TranslationFileGlue::MAX_UPLOAD_BYTES,
+            'isAdmin' => $user->isAdmin(),
         ]);
         return $view->renderResponse('TranslationFiles/Index');
     }
@@ -221,6 +226,21 @@ final class TranslationFilesController
         return $jobs;
     }
 
+    /**
+     * "Send configuration to Supertext" (administrators): the active extensions and the language
+     * mapping in one report (Typo3Reporting::sendConfiguration()). Nothing with reports off.
+     */
+    private function sendConfiguration(ServerRequestInterface $request, Labels $labels, ModuleTemplate $view): void
+    {
+        $result = $this->reporting->sendConfiguration($request);
+        [$message, $severity] = match (true) {
+            $result === null => [$labels->get('config.off'), ContextualFeedbackSeverity::WARNING],
+            $result['sent'] => [$labels->get('config.sent', (string)$result['extensions'], (string)$result['languages']), ContextualFeedbackSeverity::OK],
+            default => [$labels->get('config.failed'), ContextualFeedbackSeverity::ERROR],
+        };
+        $view->addFlashMessage($message, $labels->get('config.button'), $severity, false);
+    }
+
     /** @return array<string, string> */
     private function viewLabels(Labels $labels): array
     {
@@ -240,6 +260,9 @@ final class TranslationFilesController
             'includeChanged' => 'files.includeChanged',
             'importButton' => 'files.importButton',
             'result' => 'files.result',
+            'support' => 'config.title',
+            'configHint' => 'config.hint',
+            'configButton' => 'config.button',
         ];
         return array_map(static fn(string $key): string => $labels->get($key), $keys);
     }

@@ -431,6 +431,34 @@
 				<source>The file could not be uploaded. Please try again.</source>
 				<target>Non è stato possibile caricare il file. Riprovi.</target>
 			</trans-unit>
+			<trans-unit id="config.title" approved="yes">
+				<source>Supertext support</source>
+				<target>Supporto Supertext</target>
+			</trans-unit>
+			<trans-unit id="config.hint" approved="yes">
+				<source>Send configuration to Supertext sends Supertext the extensions installed in TYPO3 (name, version; TYPO3's own are left out) and the Supertext language of each site language, so Supertext support can help better. Nothing else is sent.</source>
+				<target>Invia la configurazione a Supertext invia a Supertext le estensioni installate in TYPO3 (nome, versione; senza quelle di TYPO3) e la lingua Supertext di ogni lingua del sito, affinché il supporto Supertext possa aiutarla meglio. Non viene inviato nient’altro.</target>
+			</trans-unit>
+			<trans-unit id="config.button" approved="yes">
+				<source>Send configuration to Supertext</source>
+				<target>Invia la configurazione a Supertext</target>
+			</trans-unit>
+			<trans-unit id="config.sent" approved="yes">
+				<source>Sent: %s extensions, %s languages.</source>
+				<target>Inviato: %s estensioni, %s lingue.</target>
+			</trans-unit>
+			<trans-unit id="config.failed" approved="yes">
+				<source>The configuration couldn't be sent. Try again later.</source>
+				<target>Non è stato possibile inviare la configurazione. Riprovi più tardi.</target>
+			</trans-unit>
+			<trans-unit id="config.off" approved="yes">
+				<source>Turn on "Send version information to Supertext" in the extension configuration to send the configuration.</source>
+				<target>Attivi «Inviare le informazioni sulla versione a Supertext» nella configurazione dell’estensione per inviare la configurazione.</target>
+			</trans-unit>
+			<trans-unit id="status.config" approved="yes">
+				<source>To send Supertext the installed extensions and the language mapping for support, use Send configuration to Supertext in the Supertext backend module (administrators).</source>
+				<target>Per inviare a Supertext le estensioni installate e la corrispondenza delle lingue per il supporto, usi «Invia la configurazione a Supertext» nel modulo backend Supertext (amministratori).</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

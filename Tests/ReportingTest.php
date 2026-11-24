@@ -238,8 +238,30 @@ $storage->values[Reporting::STATE_KEY] = (string)json_encode([
 $stored = $storage->values[Reporting::STATE_KEY];
 $result = $reporting->run(Reporting::ACTION_REQUEST, $installation(), $key);
 $check('SDK 0.2 state: nothing due', [$result?->event, $transport->requests], [null, []]);
-$check('SDK 0.2 state: same format', $storage->values[Reporting::STATE_KEY], $stored);
+// Plugin Health 0.2+ adds keyChecks and reportedKeyStatuses (null with one key); everything else is kept.
+$check('SDK 0.2 state: same format', json_decode($storage->values[Reporting::STATE_KEY], true), json_decode($stored, true) + ['keyChecks' => null, 'reportedKeyStatuses' => null]);
 $check('SDK 0.2 state: key check kept', $reporting->lastCheck()?->checkedAt, '2026-10-13T08:00:00Z');
+
+// 10c. Send configuration to Supertext: an `extensions` report now, also within the hour after a failed report; nothing when off.
+$storage = new MemoryStorage();
+$transport = new FakeTransport();
+$reporting = new Reporting($storage, $transport, 'https://center.test/api/v1/report', static function () use (&$clock): float {
+    return $clock;
+}, static function (): void {});
+$transport->centerStatus = 503;
+$reporting->run(Reporting::ACTION_REQUEST, $installation(), $key);
+$transport->centerStatus = 202;
+$transport->reset();
+$extensions = [['name' => 'georgringer/news', 'version' => '12.3.0', 'active' => true, 'type' => 'extension']];
+$languages = [['code' => 'main:en_US', 'supertext' => 'en-US'], ['code' => 'main:de_CH', 'supertext' => 'de-CH'], ['code' => 'main:en_IE', 'supertext' => null]];
+$result = $reporting->sendConfiguration($installation(), $extensions, $languages);
+$reports = $transport->reports();
+$check('send configuration: event', [$result?->event, $result?->sent], ['extensions', true]);
+$check('send configuration: extensions', $reports[0]['extensions'] ?? null, $extensions);
+$check('send configuration: languages', $reports[0]['languages'] ?? null, $languages);
+$transport->reset();
+$check('send configuration off', (bool)$reporting->sendConfiguration($installation(enabled: false), $extensions, $languages)?->sent, false);
+$check('send configuration off: nothing sent', $transport->reports(), []);
 
 // 11. Ping answers (Plugin Health's pingResponse).
 $ping = Reporting::ping('abcdefghijklmnop1234', true);

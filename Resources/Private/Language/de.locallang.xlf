@@ -431,6 +431,34 @@
 				<source>The file could not be uploaded. Please try again.</source>
 				<target>Die Datei konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut.</target>
 			</trans-unit>
+			<trans-unit id="config.title" approved="yes">
+				<source>Supertext support</source>
+				<target>Supertext-Support</target>
+			</trans-unit>
+			<trans-unit id="config.hint" approved="yes">
+				<source>Send configuration to Supertext sends Supertext the extensions installed in TYPO3 (name, version; TYPO3's own are left out) and the Supertext language of each site language, so Supertext support can help better. Nothing else is sent.</source>
+				<target>Konfiguration an Supertext senden sendet Supertext die in TYPO3 installierten Extensions (Name, Version; ohne die von TYPO3 selbst) und die Supertext-Sprache jeder Site-Sprache, damit der Supertext-Support besser helfen kann. Sonst wird nichts gesendet.</target>
+			</trans-unit>
+			<trans-unit id="config.button" approved="yes">
+				<source>Send configuration to Supertext</source>
+				<target>Konfiguration an Supertext senden</target>
+			</trans-unit>
+			<trans-unit id="config.sent" approved="yes">
+				<source>Sent: %s extensions, %s languages.</source>
+				<target>Gesendet: %s Extensions, %s Sprachen.</target>
+			</trans-unit>
+			<trans-unit id="config.failed" approved="yes">
+				<source>The configuration couldn't be sent. Try again later.</source>
+				<target>Die Konfiguration konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.</target>
+			</trans-unit>
+			<trans-unit id="config.off" approved="yes">
+				<source>Turn on "Send version information to Supertext" in the extension configuration to send the configuration.</source>
+				<target>Schalten Sie in der Extension-Konfiguration «Versionsinformationen an Supertext senden» ein, um die Konfiguration zu senden.</target>
+			</trans-unit>
+			<trans-unit id="status.config" approved="yes">
+				<source>To send Supertext the installed extensions and the language mapping for support, use Send configuration to Supertext in the Supertext backend module (administrators).</source>
+				<target>Um Supertext die installierten Extensions und die Sprachzuordnung für den Support zu senden, verwenden Sie «Konfiguration an Supertext senden» im Backend-Modul Supertext (Administratoren).</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
