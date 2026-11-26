@@ -136,6 +136,7 @@ As offered by the Supertext API in October 2026. Targets:
 | `gsw-u-sd-chzh` | Swiss German (Zurich) | – |
 | `hr` | Croatian | ✓ |
 | `hu` | Hungarian | ✓ |
+| `id` | Indonesian | ✓ |
 | `it-CH` | Italian (Switzerland) | ✓ |
 | `it-IT` | Italian (Italy) | ✓ |
 | `ja` | Japanese | ✓ |
@@ -146,6 +147,7 @@ As offered by the Supertext API in October 2026. Targets:
 | `pt-BR` | Portuguese (Brazil) | ✓ |
 | `pt-PT` | Portuguese (Portugal) | ✓ |
 | `rm` | Romansh | – |
+| `ro` | Romanian | ✓ |
 | `ru` | Russian | ✓ |
 | `sk` | Slovak | ✓ |
 | `sl` | Slovenian | ✓ |
@@ -153,13 +155,15 @@ As offered by the Supertext API in October 2026. Targets:
 | `sr-Cyrl` | Serbian (Cyrillic) | – |
 | `sr-Latn` | Serbian (Latin) | – |
 | `sv` | Swedish | ✓ |
+| `th` | Thai | ✓ |
 | `tr` | Turkish | ✓ |
+| `vi` | Vietnamese | ✓ |
 | `zh-Hans` | Chinese (Simplified) | ✓ |
 | `zh-Hant` | Chinese (Traditional) | ✓ |
 
-Sources (the default language): `bg`, `cs`, `da`, `de`, `el`, `en`, `es`, `fi`, `fr`, `gsw`, `hr`, `hu`, `it`, `ja`, `ko`, `nb`, `nl`, `pl`, `pt`, `rm`, `ru`, `sk`, `sl`, `sq`, `sr`, `sv`, `tr`, `zh`.
+Sources (the default language): `bg`, `cs`, `da`, `de`, `el`, `en`, `es`, `fi`, `fr`, `gsw`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `nb`, `nl`, `pl`, `pt`, `rm`, `ro`, `ru`, `sk`, `sl`, `sq`, `sr`, `sv`, `th`, `tr`, `vi`, `zh`.
 
-Supertext doesn't offer Arabic, Estonian, Latvian, Lithuanian, Romanian, Thai, Ukrainian or Vietnamese.
+Supertext doesn't offer Arabic, Estonian, Latvian, Lithuanian or Ukrainian.
 
 ## 5. Check it works
 
